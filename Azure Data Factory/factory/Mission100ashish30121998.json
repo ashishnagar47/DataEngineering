@@ -1,0 +1,9 @@
+{
+	"name": "Mission100ashish30121998",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "cc71d6b8-2fa5-4fcd-bc22-5564f4722350",
+		"tenantId": "a94da273-c3a9-427d-b75b-66e85e4f2224"
+	}
+}
