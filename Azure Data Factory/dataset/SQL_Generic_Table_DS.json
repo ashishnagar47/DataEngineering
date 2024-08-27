@@ -1,0 +1,30 @@
+{
+	"name": "SQL_Generic_Table_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_DB_assignment1_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"schemaNameParam": {
+				"type": "string"
+			},
+			"tableNameParam": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schemaNameParam",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().tableNameParam",
+				"type": "Expression"
+			}
+		}
+	}
+}

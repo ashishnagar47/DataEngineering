@@ -1,0 +1,31 @@
+{
+	"name": "Ingestion_Generic_Table_ADLS_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_assignment1_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"folderPathNameParam": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().folderPathNameParam",
+					"type": "Expression"
+				},
+				"fileSystem": "landing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
