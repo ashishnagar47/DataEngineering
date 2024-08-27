@@ -46,7 +46,8 @@
 						"referenceName": "SQL_Generic_Table_DS",
 						"type": "DatasetReference",
 						"parameters": {
-							"schemaNameParam": "saleslt"
+							"schemaNameParam": "saleslt",
+							"tableNameParam": "ProductModel"
 						}
 					}
 				],
