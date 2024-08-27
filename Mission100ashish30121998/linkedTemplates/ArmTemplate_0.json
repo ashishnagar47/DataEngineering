@@ -332,13 +332,13 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "ForEachLoop Exa",
+						"name": "For Each Loop Example",
 						"type": "ForEach",
 						"dependsOn": [],
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@createArray(['Customer','CustomerAddress','Product','ProductModel','Address'])",
+								"value": "@createArray('Customer','CustomerAddress','Address','Product','ProductModel')",
 								"type": "Expression"
 							},
 							"activities": [
