@@ -1,0 +1,22 @@
+{
+	"name": "ingest_cust_table_adls",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_assignment1_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "landing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
