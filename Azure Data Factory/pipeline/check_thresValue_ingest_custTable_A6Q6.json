@@ -1,5 +1,5 @@
 {
-	"name": "check_threshold_value_ingest_cust_table",
+	"name": "check_thresValue_ingest_custTable_A6Q6",
 	"properties": {
 		"activities": [
 			{
@@ -27,7 +27,7 @@
 						}
 					},
 					"dataset": {
-						"referenceName": "DelimitedText1",
+						"referenceName": "Threshold_file_DS",
 						"type": "DatasetReference"
 					},
 					"firstRowOnly": true
@@ -53,7 +53,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(activity('count_cust_table_rows').output.firstRow.custRows, activity('Check threshold value').output)",
+						"value": "@greater(activity('count_cust_table_rows').output.firstRow.custRows, int(activity('Check threshold value').output.firstRow.Prop_0))",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [

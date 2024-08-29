@@ -1,0 +1,28 @@
+{
+	"name": "Threshold_file_DS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_assignment1_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Threshold-TwcFV4QAZU.txt",
+				"fileSystem": "landing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": false,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "250",
+				"type": "String"
+			}
+		]
+	}
+}
