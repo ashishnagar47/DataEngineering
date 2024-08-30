@@ -1,10 +1,10 @@
 {
-	"name": "Foreach_Example_2_A6Q3",
+	"name": "Ingest_customerFile_in_customer_table_A7Q3",
 	"properties": {
 		"activities": [
 			{
-				"name": "Count custRows",
-				"type": "Lookup",
+				"name": "Check customer csv file present or not",
+				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,28 +15,28 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select count(*) as custRows from saleslt.Customer",
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
 					"dataset": {
-						"referenceName": "SQL_Generic_Table_DS",
-						"type": "DatasetReference",
-						"parameters": {
-							"schemaNameParam": "saleslt",
-							"tableNameParam": "customer"
-						}
+						"referenceName": "Check_Customer_file_present_or_not",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
 					}
 				}
 			},
 			{
-				"name": "check if custRows greater than 100 or not",
+				"name": "Check cust file present than save it in sql db",
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "Count custRows",
+						"activity": "Check customer csv file present or not",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -45,12 +45,12 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(activity('Count custRows').output.firstRow.custRows,100)",
+						"value": "@activity('Check customer csv file present or not').output.exists",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
 						{
-							"name": "Ingest Customer data",
+							"name": "Ingest_cust_file_in_sql_db",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -63,13 +63,18 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "AzureSqlSource",
-									"queryTimeout": "02:00:00",
-									"partitionOption": "None"
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
 								},
 								"sink": {
 									"type": "AzureSqlSink",
-									"preCopyScript": "truncate table saleslt.customer_copy",
 									"writeBehavior": "insert",
 									"sqlWriterUseTableLock": false,
 									"tableOption": "autoCreate",
@@ -87,12 +92,8 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "SQL_Generic_Table_DS",
-									"type": "DatasetReference",
-									"parameters": {
-										"schemaNameParam": "saleslt",
-										"tableNameParam": "customer"
-									}
+									"referenceName": "Check_Customer_file_present_or_not",
+									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
@@ -101,7 +102,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"schemaNameParam": "saleslt",
-										"tableNameParam": "customer_copy"
+										"tableNameParam": "customer_metadata"
 									}
 								}
 							]
