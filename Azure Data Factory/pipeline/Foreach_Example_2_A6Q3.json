@@ -1,0 +1,37 @@
+{
+	"name": "Foreach_Example_2_A6Q3",
+	"properties": {
+		"activities": [
+			{
+				"name": "Count custRows",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select count(*) as custRows from saleslt.Customer",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQL_Generic_Table_DS",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaNameParam": "saleslt",
+							"tableNameParam": "customer"
+						}
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}
