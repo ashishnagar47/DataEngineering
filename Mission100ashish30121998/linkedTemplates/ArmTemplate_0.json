@@ -148,6 +148,96 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Check_Customer_file_present_or_not')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_assignment1_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "saleslt.customer.txt",
+						"folderPath": "Customer",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "String"
+					},
+					{
+						"name": "NameStyle",
+						"type": "String"
+					},
+					{
+						"name": "Title",
+						"type": "String"
+					},
+					{
+						"name": "FirstName",
+						"type": "String"
+					},
+					{
+						"name": "MiddleName",
+						"type": "String"
+					},
+					{
+						"name": "LastName",
+						"type": "String"
+					},
+					{
+						"name": "Suffix",
+						"type": "String"
+					},
+					{
+						"name": "CompanyName",
+						"type": "String"
+					},
+					{
+						"name": "SalesPerson",
+						"type": "String"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "String"
+					},
+					{
+						"name": "Phone",
+						"type": "String"
+					},
+					{
+						"name": "PasswordHash",
+						"type": "String"
+					},
+					{
+						"name": "PasswordSalt",
+						"type": "String"
+					},
+					{
+						"name": "rowguid",
+						"type": "String"
+					},
+					{
+						"name": "ModifiedDate",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_assignment1_LS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Copy_Address_Table_DS')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -574,6 +664,33 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/getMetaData_of_ADLS_folder')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_assignment1_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_assignment1_LS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ingest_cust_table_adls')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -697,6 +814,129 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Foreach_Example_2_A6Q3')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Count custRows",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select count(*) as custRows from saleslt.Customer",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "SQL_Generic_Table_DS",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaNameParam": "saleslt",
+									"tableNameParam": "customer"
+								}
+							}
+						}
+					},
+					{
+						"name": "check if custRows greater than 100 or not",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Count custRows",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(activity('Count custRows').output.firstRow.custRows,100)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Ingest Customer data",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"preCopyScript": "truncate table saleslt.customer_copy",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SQL_Generic_Table_DS",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaNameParam": "saleslt",
+												"tableNameParam": "customer"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "SQL_Generic_Table_DS",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaNameParam": "saleslt",
+												"tableNameParam": "customer_copy"
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Foreach_Example_A6Q2')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -791,6 +1031,149 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]",
 				"[concat(variables('factoryId'), '/datasets/Ingestion_Generic_Table_ADLS_DS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Foreach_Example_A7_Q2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Ingest_cust_custAddress_ADLS",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@createArray('customer','customeraddress')",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Ingest_cust_custAdd_ADLS",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SQL_Generic_Table_DS",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaNameParam": "saleslt",
+												"tableNameParam": {
+													"value": "@item()",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "Ingestion_Generic_Table_ADLS_DS",
+											"type": "DatasetReference",
+											"parameters": {
+												"folderPathNameParam": {
+													"value": "Copy/@{formatDateTime(utcNow(),'yyyy')}-@{formatDateTime(utcNow(),'MM')}-@{formatDateTime(utcNow(),'dd')}",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]",
+				"[concat(variables('factoryId'), '/datasets/Ingestion_Generic_Table_ADLS_DS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GetMetaData_Example_A7_Q1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "getMetaData_of_ADLS_folder",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/getMetaData_of_ADLS_folder')]"
 			]
 		},
 		{
@@ -914,14 +1297,14 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Ingestion_Address_Table_JSON')]",
+			"name": "[concat(parameters('factoryName'), '/Ingest_customerFile_in_customer_table_A7Q3')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy Address Table to ADLS",
-						"type": "Copy",
+						"name": "Check customer csv file present or not",
+						"type": "GetMetadata",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -932,233 +1315,30 @@
 						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "Copy_Address_Table_DS",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ADLS_Ingestion_DS",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Copy_Address_Table_DS')]",
-				"[concat(variables('factoryId'), '/datasets/ADLS_Ingestion_DS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Ingestion_Customer_SQLDB_ADLS')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy customer table",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "Copy_Cust_table",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ingest_cust_table_adls",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Copy_Cust_table')]",
-				"[concat(variables('factoryId'), '/datasets/ingest_cust_table_adls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Ingestion_ProductModel_table')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Copy Product Model table to ADLS",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "SQL_Generic_Table_DS",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaNameParam": "saleslt",
-									"tableNameParam": "ProductModel"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Ingestion_Generic_Table_ADLS_DS",
-								"type": "DatasetReference",
-								"parameters": {
-									"folderPathNameParam": "Product Model"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]",
-				"[concat(variables('factoryId'), '/datasets/Ingestion_Generic_Table_ADLS_DS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Ingestion_Product_To_JSON')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Count_Product_table",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select count(*) as Count from SalesLT.Product",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
 							"dataset": {
-								"referenceName": "Copy_product_table_DS",
+								"referenceName": "Check_Customer_file_present_or_not",
 								"type": "DatasetReference",
 								"parameters": {}
+							},
+							"fieldList": [
+								"exists"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
 							}
 						}
 					},
 					{
-						"name": "Check if count of product is greater than 10 or not",
+						"name": "Check cust file present than save it in sql db",
 						"type": "IfCondition",
 						"dependsOn": [
 							{
-								"activity": "Count_Product_table",
+								"activity": "Check customer csv file present or not",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1167,12 +1347,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"expression": {
-								"value": "@greater(activity('Count_Product_table').output.firstRow.Count,10)",
+								"value": "@activity('Check customer csv file present or not').output.exists",
 								"type": "Expression"
 							},
 							"ifTrueActivities": [
 								{
-									"name": "Ingest_Product_table",
+									"name": "Ingest_cust_file_in_sql_db",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -1185,282 +1365,22 @@
 									"userProperties": [],
 									"typeProperties": {
 										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "JsonSink",
+											"type": "DelimitedTextSource",
 											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
 											},
 											"formatSettings": {
-												"type": "JsonWriteSettings"
+												"type": "DelimitedTextReadSettings"
 											}
-										},
-										"enableStaging": false
-									},
-									"inputs": [
-										{
-											"referenceName": "Copy_product_table_DS",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "Ingest_Product_table_ADLS",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
-									]
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Copy_product_table_DS')]",
-				"[concat(variables('factoryId'), '/datasets/Ingest_Product_table_ADLS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Without_Foreach_Example_A6Q1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Ingest_customer_table",
-						"type": "Copy",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "SQL_Generic_Table_DS",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaNameParam": "saleslt",
-									"tableNameParam": "customer"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Ingestion_Generic_Table_ADLS_DS",
-								"type": "DatasetReference",
-								"parameters": {
-									"folderPathNameParam": "customer"
-								}
-							}
-						]
-					},
-					{
-						"name": "Ingest_customer_address_table",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Ingest_customer_table",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "SQL_Generic_Table_DS",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaNameParam": "saleslt",
-									"tableNameParam": "customeraddress"
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Ingestion_Generic_Table_ADLS_DS",
-								"type": "DatasetReference",
-								"parameters": {
-									"folderPathNameParam": "custaddress"
-								}
-							}
-						]
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]",
-				"[concat(variables('factoryId'), '/datasets/Ingestion_Generic_Table_ADLS_DS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/check_thresValue_ingest_custTable_A6Q6')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Check threshold value",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"dataset": {
-								"referenceName": "Threshold_file_DS",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": true
-						}
-					},
-					{
-						"name": "check cust rows greater than threshold",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Check threshold value",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							},
-							{
-								"activity": "count_cust_table_rows",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@greater(activity('count_cust_table_rows').output.firstRow.custRows, int(activity('Check threshold value').output.firstRow.Prop_0))",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Copy data1",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
 										},
 										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
 										},
 										"enableStaging": false,
 										"translator": {
@@ -1474,46 +1394,23 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "Copy_Cust_table",
+											"referenceName": "Check_Customer_file_present_or_not",
 											"type": "DatasetReference",
 											"parameters": {}
 										}
 									],
 									"outputs": [
 										{
-											"referenceName": "ingest_cust_table_adls",
+											"referenceName": "SQL_Generic_Table_DS",
 											"type": "DatasetReference",
-											"parameters": {}
+											"parameters": {
+												"schemaNameParam": "saleslt",
+												"tableNameParam": "customer_metadata"
+											}
 										}
 									]
 								}
 							]
-						}
-					},
-					{
-						"name": "count_cust_table_rows",
-						"type": "Lookup",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select count(*) as custRows from SalesLT.Customer",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "Copy_Cust_table",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
 						}
 					}
 				],
@@ -1523,9 +1420,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Threshold_file_DS')]",
-				"[concat(variables('factoryId'), '/datasets/Copy_Cust_table')]",
-				"[concat(variables('factoryId'), '/datasets/ingest_cust_table_adls')]"
+				"[concat(variables('factoryId'), '/datasets/Check_Customer_file_present_or_not')]",
+				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]"
 			]
 		}
 	]
