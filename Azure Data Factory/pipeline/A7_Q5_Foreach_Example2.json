@@ -1,0 +1,34 @@
+{
+	"name": "A7_Q5_Foreach_Example2",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach Example 2",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@createArray('Product','Customer')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Check Product ID",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(item(), 'Product')",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": []
+	}
+}

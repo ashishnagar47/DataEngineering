@@ -1,0 +1,56 @@
+{
+	"name": "A7_Q5_P2",
+	"properties": {
+		"activities": [
+			{
+				"name": "Check Custumer ID greater than 100 and less than 1000",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select count(CustomerID) as custIdCount from saleslt.Customer",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQL_Generic_Table_DS",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaNameParam": "saleslt",
+							"tableNameParam": "customer"
+						}
+					}
+				}
+			},
+			{
+				"name": "Check custId in 100 and 1000",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Check Custumer ID greater than 100 and less than 1000",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(activity('Check Custumer ID greater than 100 and less than 1000').output.firstRow.custIdCount, 100 ) ",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}
