@@ -37,134 +37,13 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/A7_Q5_Foreach_Example2')]",
+			"name": "[concat(parameters('factoryName'), '/A7_Q4_Incremental_Pipeline_HWM_table')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "ForEach Example 2",
-						"type": "ForEach",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@createArray('Product','Customer')",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Check Product ID",
-									"type": "IfCondition",
-									"dependsOn": [],
-									"userProperties": [],
-									"typeProperties": {
-										"expression": {
-											"value": "@equals(item(), 'Product')",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/A7_Q5_P1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Check Product ID greater than 100 or not",
-						"description": "",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Lookup1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@greater(activity('Lookup1').output.firstRow.prodIdCount,100 )",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Copy data1",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "SQL_Generic_Table_DS",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaNameParam": "saleslt",
-												"tableNameParam": "product"
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "Ingestion_Generic_Table_ADLS_DS",
-											"type": "DatasetReference",
-											"parameters": {
-												"folderPathNameParam": "A7 Q5 "
-											}
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "Lookup1",
+						"name": "Get Last ExecutionTime from HWM table",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
@@ -178,7 +57,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "Select count(productID) as prodIdCount from saleslt.product",
+								"sqlReaderQuery": "Select * from saleslt.HWM",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
@@ -187,10 +66,183 @@
 								"type": "DatasetReference",
 								"parameters": {
 									"schemaNameParam": "saleslt",
-									"tableNameParam": "Product"
+									"tableNameParam": "HWM"
 								}
 							}
 						}
+					},
+					{
+						"name": "Get Last Modified Time of Product table",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Get Last ExecutionTime from HWM table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "Select max(ModifiedDate) as Last_Modified_Time from saleslt.product",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "SQL_Generic_Table_DS",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaNameParam": "saleslt",
+									"tableNameParam": "product"
+								}
+							}
+						}
+					},
+					{
+						"name": "Ingest Data",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Get Last Modified Time of Product table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "Select * from saleslt.product where ModifiedDate> '@{activity('Get Last ExecutionTime from HWM table').output.firstRow.Last_Execution_Time}' and ModifiedDate <= '@{activity('Get Last Modified Time of Product table').output.firstRow.Last_Modified_Time}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SQL_Generic_Table_DS",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaNameParam": "saleslt",
+									"tableNameParam": "product"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Ingestion_Generic_Table_ADLS_DS",
+								"type": "DatasetReference",
+								"parameters": {
+									"folderPathNameParam": "A7_Q4_Incremental Pipeline"
+								}
+							}
+						]
+					},
+					{
+						"name": "Update Execution Time",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Ingest Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": {
+									"value": "Insert into saleslt.HWM(Last_Execution_Time)\nvalues ('@{activity('Get Last Modified Time of Product table').output.firstRow.Last_Modified_Time}')\n\nSelect * from saleslt.HWM\n\n",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "Delete from saleslt.HWM\n",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SQL_Generic_Table_DS",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaNameParam": "saleslt",
+									"tableNameParam": "product"
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SQL_Generic_Table_DS",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaNameParam": "saleslt",
+									"tableNameParam": "HWM"
+								}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -204,57 +256,181 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/A7_Q5_P2')]",
+			"name": "[concat(parameters('factoryName'), '/A7_Q5_Foreach_Example2')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Check Custumer ID greater than 100 and less than 1000",
-						"type": "Lookup",
+						"name": "ForEach1",
+						"type": "ForEach",
 						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
 						"userProperties": [],
 						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select count(CustomerID) as custIdCount from saleslt.Customer",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "SQL_Generic_Table_DS",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaNameParam": "saleslt",
-									"tableNameParam": "customer"
-								}
-							}
-						}
-					},
-					{
-						"name": "Check custId in 100 and 1000",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Check Custumer ID greater than 100 and less than 1000",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@greater(activity('Check Custumer ID greater than 100 and less than 1000').output.firstRow.custIdCount, 100 ) ",
+							"items": {
+								"value": "@createArray('product', 'customer')",
 								"type": "Expression"
-							}
+							},
+							"activities": [
+								{
+									"name": "Check if Item is Product",
+									"type": "IfCondition",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(item(),'product')",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Ingest Product table",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": "Select * from saleslt.product where productID>100",
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "DelimitedTextSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "DelimitedTextWriteSettings",
+															"quoteAllText": true,
+															"fileExtension": ".txt"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "SQL_Generic_Table_DS",
+														"type": "DatasetReference",
+														"parameters": {
+															"schemaNameParam": "saleslt",
+															"tableNameParam": "customer"
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "Ingestion_Generic_Table_ADLS_DS",
+														"type": "DatasetReference",
+														"parameters": {
+															"folderPathNameParam": "A7_Q5"
+														}
+													}
+												]
+											}
+										]
+									}
+								},
+								{
+									"name": "Check if item is Customer",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "Check if Item is Product",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(item(),'customer' )",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Ingest Customer table",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "Select * from saleslt.customer \nwhere customerID>100 and customerID<=1000",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "DelimitedTextSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "DelimitedTextWriteSettings",
+															"quoteAllText": true,
+															"fileExtension": ".txt"
+														}
+													},
+													"enableStaging": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "SQL_Generic_Table_DS",
+														"type": "DatasetReference",
+														"parameters": {
+															"schemaNameParam": "saleslt",
+															"tableNameParam": "customer"
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "Ingestion_Generic_Table_ADLS_DS",
+														"type": "DatasetReference",
+														"parameters": {
+															"folderPathNameParam": "A7_Q5"
+														}
+													}
+												]
+											}
+										]
+									}
+								}
+							]
 						}
 					}
 				],
@@ -264,7 +440,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]"
+				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]",
+				"[concat(variables('factoryId'), '/datasets/Ingestion_Generic_Table_ADLS_DS')]"
 			]
 		},
 		{
