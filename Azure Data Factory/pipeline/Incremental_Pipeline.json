@@ -27,20 +27,23 @@
 						}
 					},
 					"dataset": {
-						"referenceName": "Ingest_Generic_File_ADLS",
-						"type": "DatasetReference",
-						"parameters": {
-							"folderNameParam": "Incremental Pipeline",
-							"fileNameParam": "HWM"
-						}
+						"referenceName": "HWM_file_DS",
+						"type": "DatasetReference"
 					},
-					"firstRowOnly": false
+					"firstRowOnly": true
 				}
 			},
 			{
-				"name": "Lookup2",
+				"name": "Find Last Modified Time",
 				"type": "Lookup",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Find Last Execution Date and time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -48,7 +51,157 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "Select max(ModifiedDate) as Last_Modified_Date from saleslt.customer",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SQL_Generic_Table_DS",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaNameParam": "saleslt",
+							"tableNameParam": "customer"
+						}
+					}
+				}
+			},
+			{
+				"name": "Ingest data in Storage account",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Find Last Modified Time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "Select * from saleslt.customer where ModifiedDate > '@{activity('Find Last Execution Date and time').output.firstRow.Prop_0}' and ModifiedDate <=  '@{activity('Find Last Modified Time').output.firstRow.Last_Modified_Date}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SQL_Generic_Table_DS",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaNameParam": "saleslt",
+							"tableNameParam": "customer"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Ingest_incrimental_data_ADLS",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Update HWM File",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Ingest data in Storage account",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select '@{activity('Find Last Modified Time').output.firstRow.Last_Modified_Date}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SQL_Generic_Table_DS",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaNameParam": "saleslt",
+							"tableNameParam": "customer"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "HWM_file_DS",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": []

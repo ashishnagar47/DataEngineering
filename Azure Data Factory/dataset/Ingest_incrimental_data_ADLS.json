@@ -1,5 +1,5 @@
 {
-	"name": "HWM_file_DS",
+	"name": "Ingest_incrimental_data_ADLS",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ADLS_assignment1_LS",
@@ -10,13 +10,12 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "HWM.txt",
 				"folderPath": "Incremental Pipeline",
 				"fileSystem": "landing"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
-			"firstRowAsHeader": false,
+			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
 		"schema": []
