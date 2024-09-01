@@ -90,7 +90,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "Select * from saleslt.product where ModifiedDate> '@{activity('Get Last ExecutionTime from HWM table').output.firstRow.Last_Execution_Time}' and ModifiedDate <= @{activity('Get Last Modified Time of Product table').output.firstRow.Last_Modified_Time}'",
+							"value": "Select * from saleslt.product where ModifiedDate> '@{activity('Get Last ExecutionTime from HWM table').output.firstRow.Last_Execution_Time}' and ModifiedDate <= '@{activity('Get Last Modified Time of Product table').output.firstRow.Last_Modified_Time}'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -142,7 +142,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Ingest Data ",
+						"activity": "Ingest Data",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -160,7 +160,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "Update saleslt.HWM set Last_Execution_Time= '@{activity('Get Last Modified Time of Product table').output.firstRow.Last_Modified_Time}'",
+							"value": "Insert into saleslt.HWM(Last_Execution_Time)\nvalues ('@{activity('Get Last Modified Time of Product table').output.firstRow.Last_Modified_Time}')\n\nSelect * from saleslt.HWM\n\n",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -168,8 +168,10 @@
 					},
 					"sink": {
 						"type": "AzureSqlSink",
+						"preCopyScript": "Delete from saleslt.HWM\n",
 						"writeBehavior": "insert",
-						"sqlWriterUseTableLock": false
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
 					},
 					"enableStaging": false,
 					"translator": {
