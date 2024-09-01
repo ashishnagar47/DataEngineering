@@ -1,0 +1,38 @@
+{
+	"name": "Ingest_Generic_File_ADLS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_assignment1_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"folderNameParam": {
+				"type": "string"
+			},
+			"fileNameParam": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().fileNameParam",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().folderNameParam",
+					"type": "Expression"
+				},
+				"fileSystem": "landing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
