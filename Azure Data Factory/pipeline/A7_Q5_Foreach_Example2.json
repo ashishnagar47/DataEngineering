@@ -1,0 +1,180 @@
+{
+	"name": "A7_Q5_Foreach_Example2",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@createArray('product', 'customer')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Check if Item is Product",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(item(),'product')",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Ingest Product table",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "AzureSqlSource",
+												"sqlReaderQuery": "Select * from saleslt.product where productID>100",
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "SQL_Generic_Table_DS",
+												"type": "DatasetReference",
+												"parameters": {
+													"schemaNameParam": "saleslt",
+													"tableNameParam": "customer"
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "Ingestion_Generic_Table_ADLS_DS",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPathNameParam": "A7_Q5"
+												}
+											}
+										]
+									}
+								]
+							}
+						},
+						{
+							"name": "Check if item is Customer",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Check if Item is Product",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(item(),'customer' )",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Ingest Customer table",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "AzureSqlSource",
+												"sqlReaderQuery": {
+													"value": "Select * from saleslt.customer \nwhere customerID>100 and customerID<=1000",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "SQL_Generic_Table_DS",
+												"type": "DatasetReference",
+												"parameters": {
+													"schemaNameParam": "saleslt",
+													"tableNameParam": "customer"
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "Ingestion_Generic_Table_ADLS_DS",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPathNameParam": "A7_Q5"
+												}
+											}
+										]
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": []
+	}
+}
