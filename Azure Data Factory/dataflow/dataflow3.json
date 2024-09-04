@@ -9,11 +9,22 @@
 						"referenceName": "User_SQL_Data",
 						"type": "DatasetReference"
 					},
-					"name": "UseSQLData"
+					"name": "UserSQLData"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ingest_SCD_Type2_File",
+						"type": "DatasetReference"
+					},
+					"name": "UserADLSData"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "select1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          ID as integer,",
@@ -24,7 +35,22 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> UseSQLData"
+				"     format: 'table') ~> UserSQLData",
+				"source(output(",
+				"          ID as string,",
+				"          CName as string,",
+				"          City as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> UserADLSData",
+				"UserADLSData select(mapColumn(",
+				"          ID,",
+				"          CName,",
+				"          City",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
 			]
 		}
 	}
