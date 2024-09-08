@@ -19,10 +19,46 @@
 					"name": "UserADLSData"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "User_SQL_Data",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "User_SQL_Data",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
 			"transformations": [
 				{
 					"name": "select1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select3"
 				}
 			],
 			"scriptLines": [
@@ -37,20 +73,77 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> UserSQLData",
 				"source(output(",
-				"          ID as string,",
+				"          ID as short,",
 				"          CName as string,",
 				"          City as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> UserADLSData",
-				"UserADLSData select(mapColumn(",
-				"          ID,",
-				"          CName,",
-				"          City",
+				"UserSQLData select(mapColumn(",
+				"          DB_ID = ID,",
+				"          DB_Cname = Cname,",
+				"          DB_City = City,",
+				"          DB_Active_Flag = Active_Flag",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"UserADLSData, select1 join(ID == DB_ID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 filter(!isNull(DB_ID)) ~> filter1",
+				"filter1 derive(active_flag = 0) ~> derivedColumn1",
+				"select2 alterRow(upsertIf(1==1)) ~> alterRow1",
+				"derivedColumn1 select(mapColumn(",
+				"          ID,",
+				"          Active_Flag = active_flag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"UserADLSData derive(Active_Flag = 1) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          ID,",
+				"          Cname = CName,",
+				"          City,",
+				"          Active_Flag",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ID as integer,",
+				"          Cname as string,",
+				"          City as string,",
+				"          Active_Flag as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1",
+				"select3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ID as integer,",
+				"          Cname as string,",
+				"          City as string,",
+				"          Active_Flag as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
 			]
 		}
 	}
