@@ -1,0 +1,157 @@
+{
+	"name": "dataflow4",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "SCD_Type_3_ADLS",
+						"type": "DatasetReference"
+					},
+					"name": "UserFileADLS"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ingest_SCD_Type3_SQL",
+						"type": "DatasetReference"
+					},
+					"name": "UserDatabaseSQL"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Ingest_SCD_Type3_SQL",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "Ingest_SCD_Type3_SQL",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "filter3"
+				},
+				{
+					"name": "select3"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ID as short,",
+				"          UserName as string,",
+				"          Current_City as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> UserFileADLS",
+				"source(output(",
+				"          ID as integer,",
+				"          UserName as string,",
+				"          Current_City as string,",
+				"          Previous_City_1 as string,",
+				"          Previous_City_2 as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> UserDatabaseSQL",
+				"UserDatabaseSQL select(mapColumn(",
+				"          DB_ID = ID,",
+				"          DB_UserName = UserName,",
+				"          DB_Current_City = Current_City,",
+				"          DB_Previous_City_1 = Previous_City_1,",
+				"          DB_Previous_City_2 = Previous_City_2",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"split1@IDisNotNULL filter(!isNull(DB_ID)) ~> filter2",
+				"UserFileADLS, select1 join(ID == DB_ID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"filter2 select(mapColumn(",
+				"          ID,",
+				"          UserName,",
+				"          Current_City,",
+				"          Previous_City_1 = DB_Current_City,",
+				"          Previous_City_2 = DB_Previous_City_1",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 alterRow(upsertIf(1==1)) ~> alterRow1",
+				"join1 split(!isNull(DB_ID),",
+				"     disjoint: false) ~> split1@(IDisNotNULL, IDisNULL)",
+				"split1@IDisNULL filter(isNull(DB_ID)) ~> filter3",
+				"filter3 select(mapColumn(",
+				"          ID,",
+				"          UserName,",
+				"          Current_City",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select3",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ID as integer,",
+				"          UserName as string,",
+				"          Current_City as string,",
+				"          Previous_City_1 as string,",
+				"          Previous_City_2 as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['ID'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1",
+				"select3 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ID as integer,",
+				"          UserName as string,",
+				"          Current_City as string,",
+				"          Previous_City_1 as string,",
+				"          Previous_City_2 as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2"
+			]
+		}
+	}
+}

@@ -1,0 +1,38 @@
+{
+	"name": "Ingest_SCD_Type3_SQL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SQL_DB_assignment1_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "ID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "UserName",
+				"type": "varchar"
+			},
+			{
+				"name": "Current_City",
+				"type": "varchar"
+			},
+			{
+				"name": "Previous_City_1",
+				"type": "varchar"
+			},
+			{
+				"name": "Previous_City_2",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "SalesLT",
+			"table": "SCDType3"
+		}
+	}
+}
