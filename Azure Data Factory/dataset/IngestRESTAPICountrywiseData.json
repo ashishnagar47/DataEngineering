@@ -1,0 +1,29 @@
+{
+	"name": "IngestRESTAPICountrywiseData",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "RestService2",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"coutryName": {
+					"value": "@createArray('india','us','uk','china','russia')",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"countryName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@dataset().countryName",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	}
+}
