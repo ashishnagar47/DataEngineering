@@ -1,0 +1,24 @@
+{
+	"name": "trigger_India",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "A10_Q6_StorageTrigger",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/landing/blobs/REST API/india",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/359f4942-2038-4a06-80d2-21148f9e89dc/resourceGroups/Azurelib-Academy/providers/Microsoft.Storage/storageAccounts/ashish30121998adls",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}
