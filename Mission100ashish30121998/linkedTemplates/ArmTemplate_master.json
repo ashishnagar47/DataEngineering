@@ -19,6 +19,14 @@
 			"type": "string",
 			"defaultValue": "https://ashish30121998adls.dfs.core.windows.net/"
 		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://restcountries.com/v3.1/all"
+		},
+		"RestService2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://restcountries.com/v3.1/name/"
+		},
 		"SQL_DB_assignment1_LS_properties_typeProperties_server": {
 			"type": "string",
 			"defaultValue": "mission100ashish.database.windows.net"
@@ -47,7 +55,7 @@
 		{
 			"name": "Mission100ashish30121998_ArmTemplate_0",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -67,6 +75,12 @@
 					"ADLS_assignment1_LS_properties_typeProperties_url": {
 						"value": "[parameters('ADLS_assignment1_LS_properties_typeProperties_url')]"
 					},
+					"RestService1_properties_typeProperties_url": {
+						"value": "[parameters('RestService1_properties_typeProperties_url')]"
+					},
+					"RestService2_properties_typeProperties_url": {
+						"value": "[parameters('RestService2_properties_typeProperties_url')]"
+					},
 					"SQL_DB_assignment1_LS_properties_typeProperties_server": {
 						"value": "[parameters('SQL_DB_assignment1_LS_properties_typeProperties_server')]"
 					},
@@ -83,7 +97,7 @@
 		{
 			"name": "Mission100ashish30121998_ArmTemplate_1",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -103,7 +117,7 @@
 		{
 			"name": "Mission100ashish30121998_ArmTemplate_2",
 			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
+			"apiVersion": "2024-03-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
@@ -118,6 +132,26 @@
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Resources/deployments', 'Mission100ashish30121998_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "Mission100ashish30121998_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'Mission100ashish30121998_ArmTemplate_2')]"
 			]
 		}
 	]
