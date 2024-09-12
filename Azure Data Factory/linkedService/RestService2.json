@@ -1,11 +1,6 @@
 {
 	"name": "RestService2",
 	"properties": {
-		"parameters": {
-			"countryName": {
-				"type": "string"
-			}
-		},
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
