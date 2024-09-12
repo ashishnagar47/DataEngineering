@@ -19,7 +19,10 @@
 					"value": "@dataset().countryName",
 					"type": "Expression"
 				},
-				"folderPath": "REST API",
+				"folderPath": {
+					"value": "@concat('REST_API ',dataset().countryName)",
+					"type": "Expression"
+				},
 				"fileSystem": "landing"
 			}
 		},
