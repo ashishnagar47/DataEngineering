@@ -1,6 +1,11 @@
 {
 	"name": "RestService2",
 	"properties": {
+		"parameters": {
+			"coutryName": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
