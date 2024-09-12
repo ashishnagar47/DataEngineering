@@ -39,6 +39,10 @@
 			"type": "string",
 			"defaultValue": "ashish"
 		},
+		"trigger_India_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/359f4942-2038-4a06-80d2-21148f9e89dc/resourceGroups/Azurelib-Academy/providers/Microsoft.Storage/storageAccounts/ashish30121998adls"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -147,6 +151,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"trigger_India_properties_typeProperties_scope": {
+						"value": "[parameters('trigger_India_properties_typeProperties_scope')]"
 					}
 				}
 			},

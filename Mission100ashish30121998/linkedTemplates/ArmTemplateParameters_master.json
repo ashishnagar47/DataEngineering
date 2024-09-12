@@ -29,6 +29,9 @@
 		"SQL_DB_assignment1_LS_properties_typeProperties_userName": {
 			"value": "ashish"
 		},
+		"trigger_India_properties_typeProperties_scope": {
+			"value": "/subscriptions/359f4942-2038-4a06-80d2-21148f9e89dc/resourceGroups/Azurelib-Academy/providers/Microsoft.Storage/storageAccounts/ashish30121998adls"
+		},
 		"containerUri": {
 			"value": ""
 		},

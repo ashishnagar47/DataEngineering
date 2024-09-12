@@ -38,6 +38,10 @@
 		"SQL_DB_assignment1_LS_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "ashish"
+		},
+		"trigger_India_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/359f4942-2038-4a06-80d2-21148f9e89dc/resourceGroups/Azurelib-Academy/providers/Microsoft.Storage/storageAccounts/ashish30121998adls"
 		}
 	},
 	"variables": {
@@ -4736,6 +4740,740 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/A10_Q2_REST_API')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/A10_Q6_StorageTrigger')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DelimitedText2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json1')]",
+				"[concat(variables('factoryId'), '/datasets/DelimitedText2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_assignment1_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "india",
+						"folderPath": "REST API",
+						"fileSystem": "landing"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"type": "object",
+							"properties": {
+								"common": {
+									"type": "string"
+								},
+								"official": {
+									"type": "string"
+								},
+								"nativeName": {
+									"type": "object",
+									"properties": {
+										"eng": {
+											"type": "object",
+											"properties": {
+												"official": {
+													"type": "string"
+												},
+												"common": {
+													"type": "string"
+												}
+											}
+										},
+										"hin": {
+											"type": "object",
+											"properties": {
+												"official": {
+													"type": "string"
+												},
+												"common": {
+													"type": "string"
+												}
+											}
+										},
+										"tam": {
+											"type": "object",
+											"properties": {
+												"official": {
+													"type": "string"
+												},
+												"common": {
+													"type": "string"
+												}
+											}
+										}
+									}
+								}
+							}
+						},
+						"tld": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"cca2": {
+							"type": "string"
+						},
+						"ccn3": {
+							"type": "string"
+						},
+						"cca3": {
+							"type": "string"
+						},
+						"cioc": {
+							"type": "string"
+						},
+						"independent": {
+							"type": "boolean"
+						},
+						"status": {
+							"type": "string"
+						},
+						"unMember": {
+							"type": "boolean"
+						},
+						"currencies": {
+							"type": "object",
+							"properties": {
+								"INR": {
+									"type": "object",
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"symbol": {
+											"type": "string"
+										}
+									}
+								},
+								"USD": {
+									"type": "object",
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"symbol": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"idd": {
+							"type": "object",
+							"properties": {
+								"root": {
+									"type": "string"
+								},
+								"suffixes": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"capital": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"altSpellings": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"region": {
+							"type": "string"
+						},
+						"subregion": {
+							"type": "string"
+						},
+						"languages": {
+							"type": "object",
+							"properties": {
+								"eng": {
+									"type": "string"
+								},
+								"hin": {
+									"type": "string"
+								},
+								"tam": {
+									"type": "string"
+								}
+							}
+						},
+						"translations": {
+							"type": "object",
+							"properties": {
+								"ara": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"bre": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"ces": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"cym": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"deu": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"est": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"fin": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"fra": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"hrv": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"hun": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"ita": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"jpn": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"kor": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"nld": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"per": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"pol": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"por": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"rus": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"slk": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"spa": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"srp": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"swe": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"tur": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"urd": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"zho": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"latlng": {
+							"type": "array",
+							"items": {
+								"type": "number"
+							}
+						},
+						"landlocked": {
+							"type": "boolean"
+						},
+						"borders": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"area": {
+							"type": "number"
+						},
+						"demonyms": {
+							"type": "object",
+							"properties": {
+								"eng": {
+									"type": "object",
+									"properties": {
+										"f": {
+											"type": "string"
+										},
+										"m": {
+											"type": "string"
+										}
+									}
+								},
+								"fra": {
+									"type": "object",
+									"properties": {
+										"f": {
+											"type": "string"
+										},
+										"m": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"flag": {
+							"type": "string"
+						},
+						"maps": {
+							"type": "object",
+							"properties": {
+								"googleMaps": {
+									"type": "string"
+								},
+								"openStreetMaps": {
+									"type": "string"
+								}
+							}
+						},
+						"population": {
+							"type": "integer"
+						},
+						"gini": {
+							"type": "object",
+							"properties": {
+								"2011": {
+									"type": "number"
+								}
+							}
+						},
+						"fifa": {
+							"type": "string"
+						},
+						"car": {
+							"type": "object",
+							"properties": {
+								"signs": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"side": {
+									"type": "string"
+								}
+							}
+						},
+						"timezones": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"continents": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"flags": {
+							"type": "object",
+							"properties": {
+								"png": {
+									"type": "string"
+								},
+								"svg": {
+									"type": "string"
+								},
+								"alt": {
+									"type": "string"
+								}
+							}
+						},
+						"coatOfArms": {
+							"type": "object",
+							"properties": {
+								"png": {
+									"type": "string"
+								},
+								"svg": {
+									"type": "string"
+								}
+							}
+						},
+						"startOfWeek": {
+							"type": "string"
+						},
+						"capitalInfo": {
+							"type": "object",
+							"properties": {
+								"latlng": {
+									"type": "array",
+									"items": {
+										"type": "number"
+									}
+								}
+							}
+						},
+						"postalCode": {
+							"type": "object",
+							"properties": {
+								"format": {
+									"type": "string"
+								},
+								"regex": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_assignment1_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DelimitedText2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_assignment1_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "product P3",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS_assignment1_LS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger_India')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "A10_Q6_StorageTrigger",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/landing/blobs/REST API/india",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('trigger_India_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/A10_Q6_StorageTrigger')]"
 			]
 		}
 	]

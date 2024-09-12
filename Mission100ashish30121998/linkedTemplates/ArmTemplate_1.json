@@ -334,6 +334,637 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_assignment1_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "india",
+						"folderPath": "REST API",
+						"fileSystem": "landing"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"type": "object",
+							"properties": {
+								"common": {
+									"type": "string"
+								},
+								"official": {
+									"type": "string"
+								},
+								"nativeName": {
+									"type": "object",
+									"properties": {
+										"eng": {
+											"type": "object",
+											"properties": {
+												"official": {
+													"type": "string"
+												},
+												"common": {
+													"type": "string"
+												}
+											}
+										},
+										"hin": {
+											"type": "object",
+											"properties": {
+												"official": {
+													"type": "string"
+												},
+												"common": {
+													"type": "string"
+												}
+											}
+										},
+										"tam": {
+											"type": "object",
+											"properties": {
+												"official": {
+													"type": "string"
+												},
+												"common": {
+													"type": "string"
+												}
+											}
+										}
+									}
+								}
+							}
+						},
+						"tld": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"cca2": {
+							"type": "string"
+						},
+						"ccn3": {
+							"type": "string"
+						},
+						"cca3": {
+							"type": "string"
+						},
+						"cioc": {
+							"type": "string"
+						},
+						"independent": {
+							"type": "boolean"
+						},
+						"status": {
+							"type": "string"
+						},
+						"unMember": {
+							"type": "boolean"
+						},
+						"currencies": {
+							"type": "object",
+							"properties": {
+								"INR": {
+									"type": "object",
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"symbol": {
+											"type": "string"
+										}
+									}
+								},
+								"USD": {
+									"type": "object",
+									"properties": {
+										"name": {
+											"type": "string"
+										},
+										"symbol": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"idd": {
+							"type": "object",
+							"properties": {
+								"root": {
+									"type": "string"
+								},
+								"suffixes": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"capital": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"altSpellings": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"region": {
+							"type": "string"
+						},
+						"subregion": {
+							"type": "string"
+						},
+						"languages": {
+							"type": "object",
+							"properties": {
+								"eng": {
+									"type": "string"
+								},
+								"hin": {
+									"type": "string"
+								},
+								"tam": {
+									"type": "string"
+								}
+							}
+						},
+						"translations": {
+							"type": "object",
+							"properties": {
+								"ara": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"bre": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"ces": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"cym": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"deu": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"est": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"fin": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"fra": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"hrv": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"hun": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"ita": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"jpn": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"kor": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"nld": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"per": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"pol": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"por": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"rus": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"slk": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"spa": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"srp": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"swe": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"tur": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"urd": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								},
+								"zho": {
+									"type": "object",
+									"properties": {
+										"official": {
+											"type": "string"
+										},
+										"common": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"latlng": {
+							"type": "array",
+							"items": {
+								"type": "number"
+							}
+						},
+						"landlocked": {
+							"type": "boolean"
+						},
+						"borders": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"area": {
+							"type": "number"
+						},
+						"demonyms": {
+							"type": "object",
+							"properties": {
+								"eng": {
+									"type": "object",
+									"properties": {
+										"f": {
+											"type": "string"
+										},
+										"m": {
+											"type": "string"
+										}
+									}
+								},
+								"fra": {
+									"type": "object",
+									"properties": {
+										"f": {
+											"type": "string"
+										},
+										"m": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						},
+						"flag": {
+							"type": "string"
+						},
+						"maps": {
+							"type": "object",
+							"properties": {
+								"googleMaps": {
+									"type": "string"
+								},
+								"openStreetMaps": {
+									"type": "string"
+								}
+							}
+						},
+						"population": {
+							"type": "integer"
+						},
+						"gini": {
+							"type": "object",
+							"properties": {
+								"2011": {
+									"type": "number"
+								}
+							}
+						},
+						"fifa": {
+							"type": "string"
+						},
+						"car": {
+							"type": "object",
+							"properties": {
+								"signs": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"side": {
+									"type": "string"
+								}
+							}
+						},
+						"timezones": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"continents": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						},
+						"flags": {
+							"type": "object",
+							"properties": {
+								"png": {
+									"type": "string"
+								},
+								"svg": {
+									"type": "string"
+								},
+								"alt": {
+									"type": "string"
+								}
+							}
+						},
+						"coatOfArms": {
+							"type": "object",
+							"properties": {
+								"png": {
+									"type": "string"
+								},
+								"svg": {
+									"type": "string"
+								}
+							}
+						},
+						"startOfWeek": {
+							"type": "string"
+						},
+						"capitalInfo": {
+							"type": "object",
+							"properties": {
+								"latlng": {
+									"type": "array",
+									"items": {
+										"type": "number"
+									}
+								}
+							}
+						},
+						"postalCode": {
+							"type": "object",
+							"properties": {
+								"format": {
+									"type": "string"
+								},
+								"regex": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DelimitedText2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS_assignment1_LS",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "product P3",
+						"fileSystem": "landing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/A10_Q1_REST_API')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1268,149 +1899,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]",
 				"[concat(variables('factoryId'), '/datasets/Ingestion_Generic_Table_ADLS_DS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Foreach_Example_A7_Q2')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Ingest_cust_custAddress_ADLS",
-						"type": "ForEach",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@createArray('customer','customeraddress')",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Ingest_cust_custAdd_ADLS",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "DelimitedTextSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
-											},
-											"formatSettings": {
-												"type": "DelimitedTextWriteSettings",
-												"quoteAllText": true,
-												"fileExtension": ".txt"
-											}
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "SQL_Generic_Table_DS",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaNameParam": "saleslt",
-												"tableNameParam": {
-													"value": "@item()",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "Ingestion_Generic_Table_ADLS_DS",
-											"type": "DatasetReference",
-											"parameters": {
-												"folderPathNameParam": {
-													"value": "Copy/@{formatDateTime(utcNow(),'yyyy')}-@{formatDateTime(utcNow(),'MM')}-@{formatDateTime(utcNow(),'dd')}",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/SQL_Generic_Table_DS')]",
-				"[concat(variables('factoryId'), '/datasets/Ingestion_Generic_Table_ADLS_DS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/GetMetaData_Example_A7_Q1')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get Metadata1",
-						"type": "GetMetadata",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataset": {
-								"referenceName": "getMetaData_of_ADLS_folder",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"fieldList": [
-								"childItems"
-							],
-							"storeSettings": {
-								"type": "AzureBlobFSReadSettings",
-								"recursive": true,
-								"enablePartitionDiscovery": false
-							},
-							"formatSettings": {
-								"type": "DelimitedTextReadSettings"
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/getMetaData_of_ADLS_folder')]"
 			]
 		}
 	]
