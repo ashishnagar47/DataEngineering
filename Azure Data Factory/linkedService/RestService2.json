@@ -9,7 +9,7 @@
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "https://restcountries.com/v3.1/name/",
+			"url": "@{linkedService().coutryName}",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
