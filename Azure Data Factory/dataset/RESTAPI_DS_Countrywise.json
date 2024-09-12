@@ -1,0 +1,28 @@
+{
+	"name": "RESTAPI_DS_Countrywise",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS_assignment1_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"countryName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().countryName",
+					"type": "Expression"
+				},
+				"folderPath": "REST API",
+				"fileSystem": "landing"
+			}
+		},
+		"schema": {}
+	}
+}
