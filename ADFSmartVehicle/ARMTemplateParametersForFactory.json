@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADFSmartVehicle"
+		},
+		"IOT_source_accountKey": {
+			"value": ""
+		},
+		"LinkToLanding_accountKey": {
+			"value": ""
+		},
+		"IOT_source_properties_typeProperties_url": {
+			"value": "https://iotsource.dfs.core.windows.net/"
+		},
+		"LinkToLanding_properties_typeProperties_url": {
+			"value": "https://project1sv.dfs.core.windows.net/"
+		}
+	}
+}
