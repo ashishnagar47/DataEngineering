@@ -1,0 +1,12 @@
+{
+	"name": "LinkToLanding",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://project1sv.dfs.core.windows.net/",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDFFODI5ODlGLTY2RDQtNEYxNS1BQjQ2LUFEMzJFNTkxQTZFRF9kOWYxYWMwOS1lOGQ0LTQ3NzUtOWIzZi05ZGNjMTRiOTc5ZmIiDQp9"
+		}
+	}
+}
